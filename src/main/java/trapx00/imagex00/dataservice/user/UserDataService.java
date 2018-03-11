@@ -2,7 +2,7 @@ package trapx00.imagex00.dataservice.user;
 
 import org.springframework.stereotype.Service;
 import trapx00.imagex00.entity.user.User;
-import trapx00.imagex00.exception.SystemException;
+import trapx00.imagex00.exception.viewexception.SystemException;
 
 @Service
 public interface UserDataService {

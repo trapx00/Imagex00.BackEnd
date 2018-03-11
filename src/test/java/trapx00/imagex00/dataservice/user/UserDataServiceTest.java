@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import trapx00.imagex00.entity.user.User;
-import trapx00.imagex00.vo.ResultMessage;
+import trapx00.imagex00.exception.viewexception.SystemException;
 
 import static org.junit.Assert.*;
 
@@ -33,7 +33,11 @@ public class UserDataServiceTest {
 
     @Test
     public void saveUser() {
-        User user = new User("123", "123");
-        assertEquals(ResultMessage.Success, userDataService.saveUser(user));
+        User user = new User("123", "345");
+        try {
+            userDataService.saveUser(user);
+        } catch (SystemException e) {
+            e.printStackTrace();
+        }
     }
 }

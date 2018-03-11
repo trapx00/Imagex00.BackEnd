@@ -3,6 +3,7 @@ package trapx00.imagex00.util;
 import net.sf.json.JSONObject;
 import trapx00.imagex00.MainApplication;
 import trapx00.imagex00.entity.Entity;
+import trapx00.imagex00.exception.daoexception.IdDoesNotExistException;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -21,12 +22,39 @@ public class FileUtil {
     public static <T extends Entity> T saveTuple(T entity, Class<T> clazz) {
         String tableName = AnnotationUtil.getTableName(clazz);
         ArrayList<String> columns = AnnotationUtil.getAllFieldName(clazz);
+        ArrayList<String> fileContent = new ArrayList<>();
+        String id = AnnotationUtil.getKey(clazz);
         JSONObject json = JSONObject.fromObject(entity);
 
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(savePath + tableName + fileType)))) {
+            boolean isUpdate = false;
+            String jsonLine;
+            while ((jsonLine = bufferedReader.readLine()) != null) {
+                JSONObject jsonObject = JSONObject.fromObject(jsonLine);
+                if (jsonObject.get(id).equals(json.get(id))) {
+                    jsonLine = json.toString();
+                    isUpdate = true;
+                }
+                fileContent.add(jsonLine);
+            }
+            if (!isUpdate) {
+                fileContent.add(json.toString());
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
         try (FileWriter writer = new FileWriter(savePath + tableName + fileType, true)) {
-            writer.write(json.toString());
-            writer.write(System.lineSeparator());
-            writer.flush();
+            for (String tuple : fileContent) {
+                writer.write(tuple);
+                writer.write(System.lineSeparator());
+                writer.flush();
+            }
             return entity;
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,7 +74,7 @@ public class FileUtil {
         String tableName = AnnotationUtil.getTableName(clazz);
 
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-            new FileInputStream(savePath + tableName + fileType)))) {
+                new FileInputStream(savePath + tableName + fileType)))) {
             String json;
             while ((json = bufferedReader.readLine()) != null) {
                 JSONObject jsonObject = JSONObject.fromObject(json);
@@ -61,6 +89,41 @@ public class FileUtil {
         }
 
         return null;
+    }
+
+    public static <T> void delete(String id, Class<T> clazz) {
+        String tableName = AnnotationUtil.getTableName(clazz);
+        ArrayList<String> fileContent = new ArrayList<>();
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(savePath + tableName + fileType)))) {
+            boolean isExist = false;
+            String jsonLine;
+            while ((jsonLine = bufferedReader.readLine()) != null) {
+                JSONObject jsonObject = JSONObject.fromObject(jsonLine);
+                if (jsonObject.get(id).equals(id)) {
+                    isExist = true;
+                } else {
+                    fileContent.add(jsonLine);
+                }
+            }
+            if (!isExist) {
+                throw new IdDoesNotExistException();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (FileWriter writer = new FileWriter(savePath + tableName + fileType, true)) {
+            for (String tuple : fileContent) {
+                writer.write(tuple);
+                writer.write(System.lineSeparator());
+                writer.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static <T> T fromJsonToObject(JSONObject jsonObject, Class<T> clazz) {

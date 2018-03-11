@@ -1,4 +1,4 @@
-package trapx00.imagex00.exception;
+package trapx00.imagex00.exception.viewexception;
 
 import trapx00.imagex00.vo.response.Response;
 

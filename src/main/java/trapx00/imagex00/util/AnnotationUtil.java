@@ -1,6 +1,7 @@
 package trapx00.imagex00.util;
 
 import trapx00.imagex00.entity.annotation.Column;
+import trapx00.imagex00.entity.annotation.Id;
 import trapx00.imagex00.entity.annotation.Table;
 
 import java.lang.reflect.Field;
@@ -25,5 +26,17 @@ public class AnnotationUtil {
             }
         }
         return columns;
+    }
+
+    public static String getKey(Class clazz) {
+        String key = "";
+        Field[] fields = clazz.getFields();
+        if (fields != null) {
+            for (Field field : fields) {
+                Id id = field.getAnnotation(Id.class);
+                key = id != null ? field.getName() : key;
+            }
+        }
+        return key;
     }
 }
