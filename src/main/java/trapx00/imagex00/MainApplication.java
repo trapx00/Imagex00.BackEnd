@@ -26,7 +26,7 @@ public class MainApplication {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("trapx00.Imagex00.springcontroller"))
+                .apis(RequestHandlerSelectors.basePackage("trapx00.imagex00.springcontroller"))
                 .paths(PathSelectors.any())
                 .build();
     }

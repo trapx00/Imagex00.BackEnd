@@ -1,27 +1,27 @@
 package trapx00.imagex00.vo.response;
 
 public class Response {
-    private int status;
-    private String object;
+    private int infoCode;
+    private String description;
 
-    public Response(int status, String object) {
-        this.status = status;
-        this.object = object;
+    public Response(int infoCode, String description) {
+        this.infoCode = infoCode;
+        this.description = description;
     }
 
-    public int getStatus() {
-        return status;
+    public int getInfoCode() {
+        return infoCode;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setInfoCode(int infoCode) {
+        this.infoCode = infoCode;
     }
 
-    public String getObject() {
-        return object;
+    public String getDescription() {
+        return description;
     }
 
-    public void setObject(String object) {
-        this.object = object;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

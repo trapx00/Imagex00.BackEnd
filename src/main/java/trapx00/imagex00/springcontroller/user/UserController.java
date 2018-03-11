@@ -2,6 +2,8 @@ package trapx00.imagex00.springcontroller.user;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import trapx00.imagex00.blservice.user.UserBlService;
 import trapx00.imagex00.exception.SystemException;
@@ -23,16 +25,16 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Failure")})
     @ResponseBody
-    public Response signUp(@RequestParam("username") String username, @RequestParam("password") String password) {
+    public ResponseEntity<Response> signUp(@RequestParam("username") String username, @RequestParam("password") String password) {
         try {
             userBlService.signUp(new UserSaveVo(username, password));
-            return new SuccessResponse();
+            return new ResponseEntity<>(new SuccessResponse(), HttpStatus.OK);
         } catch (UserAlreadyExistsException e) {
             e.printStackTrace();
-            return e.getResponse();
+            return new ResponseEntity<>(e.getResponse(), HttpStatus.CONFLICT);
         } catch (SystemException e) {
             e.printStackTrace();
-            return e.getResponse();
+            return new ResponseEntity<>(e.getResponse(), HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 }
