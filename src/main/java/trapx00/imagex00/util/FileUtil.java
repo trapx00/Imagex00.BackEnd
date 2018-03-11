@@ -18,29 +18,19 @@ public class FileUtil {
      * @param entity the entity object
      * @return the entity if success else return null
      */
-    public static <T> T saveTuple(Entity entity, Class<T> clazz) {
-        T tuple = (T) entity;
+    public static <T extends Entity> T saveTuple(T entity, Class<T> clazz) {
         String tableName = AnnotationUtil.getTableName(clazz);
         ArrayList<String> columns = AnnotationUtil.getAllFieldName(clazz);
-        JSONObject json = JSONObject.fromObject(tuple);
+        JSONObject json = JSONObject.fromObject(entity);
 
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(savePath + tableName + fileType, true);
+        try (FileWriter writer = new FileWriter(savePath + tableName + fileType, true)) {
             writer.write(json.toString());
             writer.write(System.lineSeparator());
             writer.flush();
-            writer.close();
-            return tuple;
-        } catch (Exception e) {
+            return entity;
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -54,10 +44,9 @@ public class FileUtil {
         String methodName = new Exception().getStackTrace()[1].getMethodName();
         String columnName = methodName.split("By")[1].toLowerCase();
         String tableName = AnnotationUtil.getTableName(clazz);
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(savePath + tableName + fileType)));
+
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+            new FileInputStream(savePath + tableName + fileType)))) {
             String json;
             while ((json = bufferedReader.readLine()) != null) {
                 JSONObject jsonObject = JSONObject.fromObject(json);
@@ -65,14 +54,10 @@ public class FileUtil {
                     return fromJsonToObject(jsonObject, clazz);
                 }
             }
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                bufferedReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return null;
